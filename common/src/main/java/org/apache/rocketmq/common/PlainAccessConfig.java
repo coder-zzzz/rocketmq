@@ -36,6 +36,8 @@ public class PlainAccessConfig {
 
     private List<String> groupPerms;
 
+    private List<String> allowedRemoteAddresses;
+
     public String getAccessKey() {
         return accessKey;
     }
@@ -98,5 +100,13 @@ public class PlainAccessConfig {
 
     public void setGroupPerms(List<String> groupPerms) {
         this.groupPerms = groupPerms;
+    }
+
+    public List<String> getAllowedRemoteAddresses() {
+        return allowedRemoteAddresses;
+    }
+
+    public void setAllowedRemoteAddresses(List<String> allowedRemoteAddresses) {
+        this.allowedRemoteAddresses = allowedRemoteAddresses;
     }
 }

@@ -42,3 +42,19 @@ accounts:
   # if it is admin, it could access all resources
   admin: true
 
+- accessKey: rocketmq3
+  secretKey: 12345678
+  whiteRemoteAddress: 192.168.1.*
+  # if it is admin, it could access all resources
+  admin: true
+  allowedRemoteAddresses:
+  - 10.0.0.1
+  - 10.0.0.2
+- accessKey: rocketmq3
+  secretKey: 12345678
+  whiteRemoteAddress: 192.168.1.*
+  # if it is admin, it could access all resources
+  admin: true
+  allowedRemoteAddresses:
+  - 10.0.0.1
+  - 10.0.0.2

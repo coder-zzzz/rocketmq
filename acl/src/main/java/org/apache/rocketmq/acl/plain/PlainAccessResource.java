@@ -17,6 +17,7 @@
 package org.apache.rocketmq.acl.plain;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.rocketmq.acl.AccessResource;
@@ -51,6 +52,8 @@ public class PlainAccessResource implements AccessResource {
     private String secretToken;
 
     private String recognition;
+
+    private List<RemoteAddressStrategy> allowedRemoteAddressStrategy;
 
     public PlainAccessResource() {
     }
@@ -197,5 +200,13 @@ public class PlainAccessResource implements AccessResource {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    public List<RemoteAddressStrategy> getAllowedRemoteAddressStrategy() {
+        return allowedRemoteAddressStrategy;
+    }
+
+    public void setAllowedRemoteAddressStrategy(List<RemoteAddressStrategy> allowedRemoteAddressStrategy) {
+        this.allowedRemoteAddressStrategy = allowedRemoteAddressStrategy;
     }
 }

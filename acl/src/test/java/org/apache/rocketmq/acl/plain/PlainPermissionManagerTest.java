@@ -64,7 +64,7 @@ public class PlainPermissionManagerTest {
 
         System.setProperty("rocketmq.home.dir", "src/test/resources");
         System.setProperty("rocketmq.acl.plain.file", "/conf/plain_acl.yml");
-        
+
         plainPermissionManager = new PlainPermissionManager();
 
     }
@@ -117,7 +117,7 @@ public class PlainPermissionManagerTest {
         Assert.assertEquals(resourcePermMap.size(), 3);
 
         Assert.assertEquals(resourcePermMap.get(PlainAccessResource.getRetryTopic("groupA")).byteValue(), Permission.DENY);
-        Assert.assertEquals(resourcePermMap.get(PlainAccessResource.getRetryTopic("groupB")).byteValue(), Permission.PUB|Permission.SUB);
+        Assert.assertEquals(resourcePermMap.get(PlainAccessResource.getRetryTopic("groupB")).byteValue(), Permission.PUB | Permission.SUB);
         Assert.assertEquals(resourcePermMap.get(PlainAccessResource.getRetryTopic("groupC")).byteValue(), Permission.PUB);
 
         List<String> topics = new ArrayList<String>();
@@ -130,8 +130,15 @@ public class PlainPermissionManagerTest {
         Assert.assertEquals(resourcePermMap.size(), 6);
 
         Assert.assertEquals(resourcePermMap.get("topicA").byteValue(), Permission.DENY);
-        Assert.assertEquals(resourcePermMap.get("topicB").byteValue(), Permission.PUB|Permission.SUB);
+        Assert.assertEquals(resourcePermMap.get("topicB").byteValue(), Permission.PUB | Permission.SUB);
         Assert.assertEquals(resourcePermMap.get("topicC").byteValue(), Permission.PUB);
+
+        List<String> allowedRemoteAddresses = new ArrayList<>();
+        allowedRemoteAddresses.add("127.0.0.1");
+        allowedRemoteAddresses.add("10.1.1.1");
+        plainAccess.setAllowedRemoteAddresses(allowedRemoteAddresses);
+        plainAccessResource = plainPermissionManager.buildPlainAccessResource(plainAccess);
+        Assert.assertEquals(plainAccessResource.getAllowedRemoteAddressStrategy().size(), 2);
     }
 
     @Test(expected = AclException.class)
@@ -157,6 +164,7 @@ public class PlainPermissionManagerTest {
         plainPermissionManager.checkPerm(plainAccessResource, ANYPlainAccessResource);
 
     }
+
     @Test(expected = AclException.class)
     public void checkErrorPermDefaultValueNotMatch() {
 
@@ -164,6 +172,7 @@ public class PlainPermissionManagerTest {
         plainAccessResource.addResourceAndPerm("topicF", Permission.PUB);
         plainPermissionManager.checkPerm(plainAccessResource, SUBPlainAccessResource);
     }
+
     @Test(expected = AclException.class)
     public void accountNullTest() {
         plainAccessConfig.setAccessKey(null);
@@ -218,10 +227,10 @@ public class PlainPermissionManagerTest {
 
 
     @Test
-    public void testWatch() throws IOException, IllegalAccessException ,InterruptedException{
+    public void testWatch() throws IOException, IllegalAccessException, InterruptedException {
         System.setProperty("rocketmq.home.dir", "src/test/resources");
         System.setProperty("rocketmq.acl.plain.file", "/conf/plain_acl-test.yml");
-        String fileName =System.getProperty("rocketmq.home.dir", "src/test/resources")+System.getProperty("rocketmq.acl.plain.file", "/conf/plain_acl.yml");
+        String fileName = System.getProperty("rocketmq.home.dir", "src/test/resources") + System.getProperty("rocketmq.acl.plain.file", "/conf/plain_acl.yml");
         File transport = new File(fileName);
         transport.delete();
         transport.createNewFile();
@@ -276,5 +285,26 @@ public class PlainPermissionManagerTest {
         System.setProperty("rocketmq.acl.plain.file", "/conf/plain_acl_null.yml");
         new PlainPermissionManager();
 
+    }
+
+    @Test(expected = AclException.class)
+    public void testValidateNotInAllowed() {
+        plainAccessResource = new PlainAccessResource();
+        plainAccessResource.setAccessKey("rocketmq3");
+        plainAccessResource.setWhiteRemoteAddress("127.0.0.1");
+        plainPermissionManager.validate(plainAccessResource);
+    }
+
+    @Test
+    public void testValidateInAllowed() {
+        plainAccessResource = new PlainAccessResource();
+        plainAccessResource.setAccessKey("rocketmq3");
+        plainAccessResource.setSecretKey("12345678");
+        plainAccessResource.setWhiteRemoteAddress("10.0.0.1");
+
+        String signature = AclUtils.calSignature(plainAccessResource.getContent(), plainAccessResource.getSecretKey());
+        plainAccessResource.setSignature(signature);
+
+        plainPermissionManager.validate(plainAccessResource);
     }
 }
